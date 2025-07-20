@@ -30,6 +30,7 @@ var devinfo = { hrstr: null, srstr: null, frstr: null };
 var devSens = {};
 var fwname = '';
 var hwver_id = null;
+var currentFirmwareType = ''; // Track which firmware type is being loaded
 //Connection values
 var state = 0,
 	connectTrys = 0;
@@ -114,6 +115,7 @@ function resetVariables() {
 	devinfo.srstr = null;
 	devinfo.frstr = null;
 	hwver_id = null;
+	currentFirmwareType = '';
 	//fzigbeeota.used = false;
 	//fwname = '';
 	devtime = {};
@@ -2454,6 +2456,7 @@ function FirmwareZB() {
 	if(hwver_id != null) {
 		if(!confirm("Attention: This is a 'trial' firmware. Created to be able to test the operation with Zigbee, but having the ability to use BLE and Zigbee OTA for those whose Zigbee coordinator does not allow Zigbee OTA. Which is relevant for closed gateways of different brands. ZB firmware converts the thermometer to the Zigbee protocol and BLE OTA only! All data for MiHome and measurement memory will be erased!"))
 		   return;
+		currentFirmwareType = 'zb';
 		let fn = otazbfiles.bin[hwver_id];
 		addAlog("Load firmware file '"+fn+"'...");
 		if(fn.slice(0,6) == "https:")
@@ -2466,6 +2469,7 @@ function FirmwareZigbee() {
 	if(hwver_id != null) {
 		if(!confirm("Attention: Zigbee firmware converts the thermometer to the Zigbee protocol! All data for MiHome and measurement memory will be erased!"))
 		   return;
+		currentFirmwareType = 'zigbee';
 		let fn = otazfiles.bin[hwver_id];
 		addAlog("Load firmware file '"+fn+"'...");
 		if(fn.slice(0,6) == "https:")
@@ -2476,6 +2480,7 @@ function FirmwareZigbee() {
 }
 function FirmwareUpgrade() {
 	if(hwver_id != null) {
+		currentFirmwareType = 'custom';
 		let fn = otafiles.custom[hwver_id];
 		addAlog("Load firmware file '"+fn+"'...");
 		if(fn.slice(0,6) == "https:")
@@ -2496,6 +2501,7 @@ function BetaFirmwareUpgrade() {
 }
 function BackToOriginal() {
 	if(hwver_id != null) {
+		currentFirmwareType = 'original';
 		let fn = otafiles.original[hwver_id];
 		addAlog("Load firmware file '"+fn+"'...");
 		if(fn.slice(0,6) == "https:")
@@ -2540,13 +2546,21 @@ function updateBegin() {
 		return;
 	}
 	
-	// Predict ATC name when flashing custom firmware
-	if (customEnabled && bluetoothDevice) {
+	// Predict device name changes based on firmware type
+	if (bluetoothDevice) {
 		var deviceMAC = getDeviceMAC();
 		if (deviceMAC) {
-			var atcName = generateATCName(deviceMAC);
-			if (atcName) {
-				addLog("Device will be renamed to: " + atcName + " after flashing custom firmware");
+			if (currentFirmwareType === 'custom') {
+				var atcName = generateATCName(deviceMAC);
+				if (atcName) {
+					addLog("Device will be renamed to: " + atcName + " after flashing custom firmware");
+				}
+			} else if (currentFirmwareType === 'zigbee') {
+				addLog("Device will be converted to Zigbee protocol after flashing");
+			} else if (currentFirmwareType === 'zb') {
+				addLog("Device will be converted to Zigbee protocol (trial firmware) after flashing");
+			} else if (currentFirmwareType === 'original') {
+				addLog("Device will keep original LYWSD03MMC name after flashing stock firmware");
 			}
 		}
 	}

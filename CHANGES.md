@@ -16,9 +16,16 @@ Modified the connection function to:
 
 ### 3. Enhanced Flashing Prediction
 Modified the `updateBegin` function to:
-- Predict and show the ATC_XXXXXX name when flashing custom firmware starts
-- Only shows prediction for custom firmware (not stock firmware)
-- Example log output: "Device will be renamed to: ATC_C92647 after flashing custom firmware"
+- Predict device name changes based on firmware type being flashed
+- **Custom Firmware**: Shows ATC_XXXXXX name prediction
+- **Zigbee Firmware**: Shows conversion to Zigbee protocol message
+- **ZB Firmware**: Shows conversion to Zigbee protocol (trial) message  
+- **Original Firmware**: Shows that device keeps original LYWSD03MMC name
+- Example log outputs:
+  - Custom: "Device will be renamed to: ATC_C92647 after flashing custom firmware"
+  - Zigbee: "Device will be converted to Zigbee protocol after flashing"
+  - ZB: "Device will be converted to Zigbee protocol (trial firmware) after flashing"
+  - Original: "Device will keep original LYWSD03MMC name after flashing stock firmware"
 
 ### 4. Enhanced Advertisement MAC Logging
 Modified the `catchAdvertisement` function to:
@@ -46,9 +53,9 @@ Example: MAC `A4:C1:38:C9:26:47` → ATC name `ATC_C92647`
 
 ## Benefits
 1. **Better Device Identification**: Users can see the actual MAC address of devices
-2. **Predictive Information**: Users know what the device name will be after flashing custom firmware
-3. **Accurate Timing**: ATC name prediction only shown when flashing starts, not during connection
-4. **Correct Context**: Only shows ATC prediction for custom firmware, not stock firmware
+2. **Comprehensive Predictions**: Users know what will happen to their device based on firmware type
+3. **Accurate Timing**: Predictions only shown when flashing starts, not during connection
+4. **Correct Context**: Different predictions for different firmware types (Custom, Zigbee, ZB, Original)
 5. **Backward Compatibility**: All existing functionality remains unchanged
 
 ## Testing

@@ -8,11 +8,40 @@
 ```
 
 ## After Changes
+
+### Custom Firmware
 ```
 10:30:15: Searching for devices
 10:30:18: Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)
 10:30:20: Connected
 10:30:25: Device will be renamed to: ATC_C92647 after flashing custom firmware
+10:30:25: Start DFU
+```
+
+### Zigbee Firmware
+```
+10:30:15: Searching for devices
+10:30:18: Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)
+10:30:20: Connected
+10:30:25: Device will be converted to Zigbee protocol after flashing
+10:30:25: Start DFU
+```
+
+### ZB Firmware
+```
+10:30:15: Searching for devices
+10:30:18: Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)
+10:30:20: Connected
+10:30:25: Device will be converted to Zigbee protocol (trial firmware) after flashing
+10:30:25: Start DFU
+```
+
+### Original Firmware
+```
+10:30:15: Searching for devices
+10:30:18: Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)
+10:30:20: Connected
+10:30:25: Device will keep original LYWSD03MMC name after flashing stock firmware
 10:30:25: Start DFU
 ```
 
