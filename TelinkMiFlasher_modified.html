@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html class="telFlasherClass">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telink Flasher v11.3</title>
+<script type="text/javascript" src="./core.js"></script>
+</head>
+<body>
+<script>
+//BLE values
+var bluetoothDevice, gattServer, Theservice, writeCharacteristic;
+var ServiceMain, writeCharacteristicSpeed = null, nitifiyCharTemp, time_char, enc_main, enc_10, enc_19;
+//Firmware values
+const MAX_BLE_OTA_SIZE = 0x20000; // 128KB
+const MAX_EXT_OTA_SIZE = 0x34000; // 208KB
+var fwmaxsize = MAX_BLE_OTA_SIZE,
+	bigOtaEnabled = false; // -> MAX_EXT_OTA_SIZE
+var otafiles = { loaded: false };
+var otazfiles = { loaded: false };
+var otazbfiles = { loaded: false };
+var fzigbeeota = { used : false };
+var firmwareArray = "",
+	startTime = 0,
+	blockCount = 0,
+	fsignota = "";
+var addSignArray = "";
+var flg_memo_act = false;
+var devinfo = { hrstr: null, srstr: null, frstr: null };
+var devSens = {};
+var fwname = '';
+var hwver_id = null;
+//Connection values
+var state = 0,
+	connectTrys = 0;
+//Custom firmware
+var customEnabled, devTest = false;
+var settingsCharacteristics = null;
+// Custom config
+var MAX_RF_TX_Power = false;
+var cfg = {enable: false, zbdevice: false, ver: 0, hver: 0, ext_hw_id: 0, flg: 0, flg2: 0, temp_offset: 0, humi_offset: 0, advertising_interval: 32, measure_interval: 5, rf_tx_power: 191, connect_latency: 49, lcd_tint: 55, av_meas_mem: 60, step_time: 16000000};
+var trg = {enable: false, tmp_thr: 2100, hm_thr: 5000, tmp_hst: -1, hm_hst: 0, flg: 0, rds_type: 0, rds_rpint: 0};
+var cmf = {enable: false, tmp_lo: 2100, tmp_hi: 2600, hm_lo: 3000, hm_hi: 6000};
+var dnm = {enable: false, name: ""};
+var devtime = {};
+var pincode = {enable: false, value: 0};
+//Mi values
+var miEnabled = false,
+	otaEnabled = false,
+	EnabledQinping = false,
+	devInfEnabled = false,
+	miConnected = false,
+	devIdEnabled = false,
+	mode_activation;
+//Login values
+var mi_random_key, mi_random_key_recv, mi_device_info_recv, mi_device_info_send, device_known_id, expected_device_infos, is_logged_in = false;
+//Activation values
+var keypair, is_activated, own_public_key, device_public_key, shared_key, derived_key, mi_write_did;
+var device_new_id = "00626c742e332e31323976" + makeRandomID(6) + "673030"; // 0+"blt.6.129v"+rand[6]+"g00"
+
+var $ = function(id) { return document.getElementById(id);}
+
+// Function to generate ATC_XXXXXX name from MAC address
+function generateATCName(macAddress) {
+	if (!macAddress) return null;
+	
+	// Remove colons and convert to uppercase
+	var cleanMac = macAddress.replace(/:/g, '').toUpperCase();
+	
+	// Take the last 6 characters (3 bytes) from the MAC
+	var lastThreeBytes = cleanMac.slice(-6);
+	
+	// Generate ATC_XXXXXX format
+	return "ATC_" + lastThreeBytes;
+}
+
+// Function to get device MAC address (if available)
+function getDeviceMAC() {
+	if (bluetoothDevice && bluetoothDevice.address) {
+		return bluetoothDevice.address;
+	}
+	return null;
+}
+
+function resetVariables() {
+	fwmaxsize = MAX_BLE_OTA_SIZE;
+	blockCount = 0;
+	busy = false;
+	gattServer = null;
+	Theservice = null;
+	mikeys.restore = false;
+	mikeys.mac = null;
+	mikeys.id = null;
+	mikeys.token = null;
+	mikeys.bindkey = null
+	mikeys.cbindkey = null
+	mikeys.cfg = null;
+	mikeys.delkeys = null;
+	ext.enable = false;
+	pincode.enable = false;
+	cfg.enable = false;
+	cfg.zbdevice = false;
+	trg.enable = false;
+	trg.rds2_enable = false;
+	cmf.enable = false;
+	dnm.enable = false;
+	cnt_buf11 = 0;
+	writeCharacteristic = null;
+	settingsCharacteristics = null;
+	miConnected = false;
+	bigOtaEnabled = false;
+	is_logged_in = false;
+	devinfo.hrstr = null;
+	devinfo.srstr = null;
+	devinfo.frstr = null;
+	hwver_id = null;
+	//fzigbeeota.used = false;
+	//fwname = '';
+	devtime = {};
+	writeCharacteristicSpeed = null;
+	$("ldfrmw").innerHTML ='';
+	$("custcfg").innerHTML = '';
+	$("tempHumiData").innerHTML = "Temp/Humidity: waiting notify for data after connecting";
+</script>
+</body>
+</html>
