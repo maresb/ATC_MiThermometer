@@ -12,14 +12,19 @@ Enhanced the TelinkMiFlasher.html script to show MAC addresses and predict ATC_X
 ### 2. Enhanced Connection Logging
 Modified the connection function to:
 - Display MAC address when connecting to devices
-- Predict and show the ATC_XXXXXX name that the device will have after flashing
-- Example log output: "Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)" followed by "Device will be renamed to: ATC_C92647 after flashing"
+- Example log output: "Connecting to: LYWSD03MMC (MAC: A4:C1:38:C9:26:47)"
 
-### 3. Enhanced Advertisement MAC Logging
+### 3. Enhanced Flashing Prediction
+Modified the `updateBegin` function to:
+- Predict and show the ATC_XXXXXX name when flashing custom firmware starts
+- Only shows prediction for custom firmware (not stock firmware)
+- Example log output: "Device will be renamed to: ATC_C92647 after flashing custom firmware"
+
+### 4. Enhanced Advertisement MAC Logging
 Modified the `catchAdvertisement` function to:
-- Show predicted ATC name alongside MAC addresses in advertisement data
+- Show MAC addresses in advertisement data (without ATC prediction)
 - Works for multiple advertisement formats (Mi, pvvx, atc1441, CGG1, Qingping/ClearGrass)
-- Example log output: "MAC: A4C138C92647 (will become: ATC_C92647)"
+- Example log output: "MAC: A4C138C92647"
 
 ## Technical Details
 
@@ -41,9 +46,10 @@ Example: MAC `A4:C1:38:C9:26:47` → ATC name `ATC_C92647`
 
 ## Benefits
 1. **Better Device Identification**: Users can see the actual MAC address of devices
-2. **Predictive Information**: Users know what the device name will be after flashing
-3. **Consistent Logging**: MAC addresses and predicted names are shown in all relevant log entries
-4. **Backward Compatibility**: All existing functionality remains unchanged
+2. **Predictive Information**: Users know what the device name will be after flashing custom firmware
+3. **Accurate Timing**: ATC name prediction only shown when flashing starts, not during connection
+4. **Correct Context**: Only shows ATC prediction for custom firmware, not stock firmware
+5. **Backward Compatibility**: All existing functionality remains unchanged
 
 ## Testing
 The ATC name generation function has been tested with various MAC address formats:

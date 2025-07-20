@@ -186,15 +186,10 @@ function connect() {
 			catchAdvertisement(device);
 		bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
 		
-		// Get device MAC address and predict ATC name
+		// Get device MAC address and log it
 		var deviceMAC = getDeviceMAC();
-		var atcName = null;
 		if (deviceMAC) {
-			atcName = generateATCName(deviceMAC);
 			addLog("Connecting to: " + bluetoothDevice.name + " (MAC: " + deviceMAC + ")");
-			if (atcName) {
-				addLog("Device will be renamed to: " + atcName + " after flashing");
-			}
 		} else {
 			addLog("Connecting to: " + bluetoothDevice.name);
 		}
@@ -398,11 +393,6 @@ function catchAdvertisement(device) {
 				if((ctrl & 0x10) && b.byteLength >= i + 6) {
 					var macAddress = hex(buf[i+5],2)+hex(buf[i+4],2)+hex(buf[i+3],2)+hex(buf[i+2],2)+hex(buf[i+1],2)+hex(buf[i],2);
 					s += ', MAC: '+macAddress;
-					// Predict ATC name from MAC
-					var atcName = generateATCName(macAddress);
-					if (atcName) {
-						s += ' (will become: ' + atcName + ')';
-					}
 					i += 6;
 				}
 				if((ctrl & 0x20) && b.byteLength >= i + 1) {
@@ -503,11 +493,6 @@ function catchAdvertisement(device) {
 			let flg = b.getUint8(14);
 			var macAddress = hex(buf[5],2)+hex(buf[4],2)+hex(buf[3],2)+hex(buf[2],2)+hex(buf[1],2)+hex(buf[0],2);
 			s = 'MAC: '+macAddress;
-			// Predict ATC name from MAC
-			var atcName = generateATCName(macAddress);
-			if (atcName) {
-				s += ' (will become: ' + atcName + ')';
-			}
 			s += ', Bat: '+bat+'%, Vbat: '+vbat+' mV , Temp: '+temp+'°C, Humi: '+humi+'%, Count: '+cnt+', Flg: '+flg;
 		} else if(b.byteLength == 13) { // atc1441
 			// A4 C1 38 56 58 70 01 0A 18 48 0B 25 70
@@ -518,11 +503,6 @@ function catchAdvertisement(device) {
 			let cnt = b.getUint8(12);
 			var macAddress = hex(buf[0],2)+hex(buf[1],2)+hex(buf[2],2)+hex(buf[3],2)+hex(buf[4],2)+hex(buf[5],2);
 			s = 'MAC: '+macAddress;
-			// Predict ATC name from MAC
-			var atcName = generateATCName(macAddress);
-			if (atcName) {
-				s += ' (will become: ' + atcName + ')';
-			}
 			s += ', Bat: '+bat+'%, Vbat: '+vbat+' mV, Temp: '+temp+'°C, Humi: '+humi+'%, Count: '+cnt;
 		}
 	} else if(key == '0000fff9-0000-1000-8000-00805f9b34fb') { // CGG1 "Goose"
@@ -533,11 +513,6 @@ function catchAdvertisement(device) {
 			let bat = b.getUint8(16);
 			var macAddress = hex(buf[2],2)+hex(buf[3],2)+hex(buf[4],2)+hex(buf[5],2)+hex(buf[6],2)+hex(buf[7],2);
 			let s = 'MAC: '+macAddress;
-			// Predict ATC name from MAC
-			var atcName = generateATCName(macAddress);
-			if (atcName) {
-				s += ' (will become: ' + atcName + ')';
-			}
 			s += ', Bat: '+bat+'%, Temp: '+temp+'°C, Humi: '+humi+'%';
 			log(s);
 		}
@@ -552,11 +527,6 @@ function catchAdvertisement(device) {
 			let device_id = b.getUint8(1);
 			var macAddress = hex(buf[2],2)+hex(buf[3],2)+hex(buf[4],2)+hex(buf[5],2)+hex(buf[6],2)+hex(buf[7],2);
 			s = 'MAC: '+macAddress;
-			// Predict ATC name from MAC
-			var atcName = generateATCName(macAddress);
-			if (atcName) {
-				s += ' (will become: ' + atcName + ')';
-			}
 			if(device_id == 0x01) s+=' CGG1 "Goose"';
 			else if (device_id == 0x07) s+=' CGG1';
 			else if (device_id == 0x09) s+=' CGP1W';
@@ -2568,6 +2538,17 @@ function updateBegin() {
 	} else if ((blockCount*16) > fwmaxsize) {
 		alert('EXT OTA is not supported! Update the new custom version (4.6 or higher)!');
 		return;
+	}
+	
+	// Predict ATC name when flashing custom firmware
+	if (customEnabled && bluetoothDevice) {
+		var deviceMAC = getDeviceMAC();
+		if (deviceMAC) {
+			var atcName = generateATCName(deviceMAC);
+			if (atcName) {
+				addLog("Device will be renamed to: " + atcName + " after flashing custom firmware");
+			}
+		}
 	}
 	// if Host is IOS = "1e0001"
 	if (miEnabled && writeCharacteristicSpeed != null) mainCharSend("1e0000", writeCharacteristicSpeed); // this makes the upload faster
